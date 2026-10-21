@@ -16,6 +16,7 @@ client = pymongo.MongoClient(MONGO_URI)
 
 db = client.test
 collection = db.test_collection
+todo_collection = db.todo_items
 
 app = Flask(__name__)
 
@@ -60,6 +61,45 @@ def submit():
         return redirect(url_for("success"))
     except (pymongo.errors.PyMongoError, OSError, ValueError) as error:
         return render_template("index.html", error=f"Unable to submit data: {error}"), 400
+
+
+@app.route("/submittodoitem", methods=["POST"])
+def submit_todo_item():
+    json_payload = request.get_json()
+    if json_payload is None:
+        payload = request.form
+    elif isinstance(json_payload, dict):
+        payload = json_payload
+    else:
+        return jsonify({"error": "Request body must be a JSON object."}), 400
+
+    item_name = payload.get("itemName")
+    item_description = payload.get("itemDescription")
+
+    if (
+        not isinstance(item_name, str)
+        or not isinstance(item_description, str)
+        or not item_name.strip()
+        or not item_description.strip()
+    ):
+        return jsonify({
+            "error": "itemName and itemDescription are required."
+        }), 400
+    item_name = item_name.strip()
+    item_description = item_description.strip()
+
+    try:
+        result = todo_collection.insert_one({
+            "itemName": item_name,
+            "itemDescription": item_description
+        })
+    except pymongo.errors.PyMongoError as error:
+        return jsonify({"error": f"Unable to save todo item: {error}"}), 500
+
+    return jsonify({
+        "message": "Todo item saved successfully.",
+        "id": str(result.inserted_id)
+    }), 201
 
 
 @app.route("/success")
