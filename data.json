@@ -2,7 +2,7 @@
   { "id": 1, "name": "Raj", "role": "Developer" },
   { "id": 2, "name": "Amit", "role": "DevOps Engineer" },
   { "id": 8, "name": "Amit", "role": "DevOps Engineer" },
-  { "id": 3, "name": "Priya", "role": "Software Engineer" },
+  { "id": 2, "name": "Priya", "role": "Software Engineer" },
   {
     "name": "John Doe",
     "age": 30,
